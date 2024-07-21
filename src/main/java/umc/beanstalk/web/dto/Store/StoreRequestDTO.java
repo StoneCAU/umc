@@ -26,8 +26,6 @@ public class StoreRequestDTO {
         Float score;
         @NotBlank
         String body;
-
-        MultipartFile reviewPicture;
     }
 
     @Getter

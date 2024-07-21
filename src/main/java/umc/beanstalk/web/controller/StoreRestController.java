@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import umc.beanstalk.apiPayload.ApiResponse;
 import umc.beanstalk.converter.ReviewConverter;
 import umc.beanstalk.converter.StoreConverter;
@@ -75,7 +76,7 @@ public class StoreRestController {
         return ApiResponse.onSuccess(StoreConverter.missionListDTO(missionList));
     }
 
-    @PostMapping(value = "{storeId}/reviews", consumes = "multipart/form-data")
+    @PostMapping(value = "/{storeId}/reviews", consumes = "multipart/form-data")
     @Operation(summary = "특정 가게의 리뷰 작성 API", description = "특정 가게의 리뷰를 작성합니다.")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
@@ -84,15 +85,16 @@ public class StoreRestController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "AUTH006", description = "access 토큰 모양이 이상함", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     @Parameters({
-            @Parameter(name = "storeId", description = "가게의 아이디, path variable 입니다!"),
-            @Parameter(name = "memberId", description = "멤버의 아이디, path variable 입니다!"),
+            @Parameter(name = "storeId", description = "가게의 아이디, path variable 입니다!!"),
+            @Parameter(name = "memberId", description = "멤버의 아이디, request param 입니다!")
     })
     public ApiResponse<StoreResponseDTO.CreateReviewResultDTO> createReview(
             @ExistStores @PathVariable(name = "storeId") Long storeId,
-            @ExistMembers @PathVariable(name = "memberId") Long memberId,
-            StoreRequestDTO.ReviewDTO reviewDTO
+            @ExistMembers @RequestParam(name = "memberId") Long memberId,
+            @RequestPart @Valid StoreRequestDTO.ReviewDTO request,
+            @RequestPart MultipartFile photo
             ) {
-        Review review = storeCommandService.createReview(memberId, storeId, reviewDTO);
+        Review review = storeCommandService.createReview(memberId, storeId, request, photo);
         return ApiResponse.onSuccess(StoreConverter.toCreateReviewResultDTO(review));
 
     }

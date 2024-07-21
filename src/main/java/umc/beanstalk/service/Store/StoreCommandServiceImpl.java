@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import umc.beanstalk.apiPayload.code.status.ErrorStatus;
 import umc.beanstalk.apiPayload.exception.handler.RegionHandler;
 import umc.beanstalk.aws.s3.AmazonS3Manager;
@@ -53,7 +54,7 @@ public class StoreCommandServiceImpl implements StoreCommandService {
     }
 
     @Override
-    public Review createReview(Long memberId, Long storeId, StoreRequestDTO.ReviewDTO request) {
+    public Review createReview(Long memberId, Long storeId, StoreRequestDTO.ReviewDTO request, MultipartFile photo) {
 
         Review review = StoreConverter.toReview(request);
 
@@ -61,7 +62,7 @@ public class StoreCommandServiceImpl implements StoreCommandService {
         Uuid savedUuid = uuidRepository.save(Uuid.builder()
                 .uuid(uuid).build());
 
-        String pictureUrl = s3Manager.uploadFile(s3Manager.generateReviewKeyName(savedUuid), request.getReviewPicture());
+        String pictureUrl = s3Manager.uploadFile(s3Manager.generateReviewKeyName(savedUuid), photo);
 
         review.setMember(memberRepository.findById(memberId).get());
         review.setStore(storeRepository.findById(storeId).get());

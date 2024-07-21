@@ -20,7 +20,7 @@ public class ReviewImage extends BaseEntity {
     @Column(unique = true)
     private String pictureUrl;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id")
     private Review review;
 }
